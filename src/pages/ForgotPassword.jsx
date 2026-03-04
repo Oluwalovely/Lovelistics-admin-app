@@ -1,36 +1,27 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginAdmin } from '../services/api';
-import { useAuth } from '../AuthContext';
+import { forgotPassword } from '../services/api';
+import { Mail, ArrowLeft } from 'lucide-react';
 import logo from '../assets/logo.png';
 
-const Login = () => {
+const ForgotPassword = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
-
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [error, setError] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError('');
-    };
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setSuccess('');
         try {
-            const res = await loginAdmin(formData);
-            if (res.data.data.role !== 'admin') {
-                setError('This portal is for admins only.');
-                return;
-            }
-            login(res.data.data, res.data.token);
-            navigate('/dashboard');
+            await forgotPassword({ email });
+            setSuccess('OTP sent! Check your email inbox.');
+            setTimeout(() => navigate('/verify-otp', { state: { email } }), 1500);
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid credentials');
+            setError(err.response?.data?.message || 'Something went wrong. Try again.');
         } finally {
             setLoading(false);
         }
@@ -42,37 +33,45 @@ const Login = () => {
                 <div className="auth-brand">
                     <img src={logo} alt="LOVELISTICS" className="auth-logo" />
                     <span className="auth-brand-name">LOVELISTICS</span>
-                    <p className="auth-tagline">Delivering Trust, On Time. Every Ting.</p>
+                    <p className="auth-tagline">Delivering trust on time, always.</p>
                 </div>
 
                 <div className="auth-divider" />
 
-                <div className="auth-role-badge">Admin Portal</div>
-                <h6 className="auth-title">Login to your admin account</h6>
+                <div className="icon-wrap">
+                    <Mail size={26} color="#0d1f4f" />
+                </div>
+                <h6 className="auth-title">Forgot your password?</h6>
+                <p className="auth-subtitle">
+                    Enter the email address linked to your account. We'll send you a 6-digit OTP to reset your password.
+                </p>
 
                 {error && <div className="auth-error">{error}</div>}
+                {success && <div className="auth-success">{success}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="auth-field">
                         <label>Email Address</label>
-                        <input type="email" name="email" placeholder="you@example.com" value={formData.email} onChange={handleChange} required />
+                        <input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={email}
+                            onChange={e => { setEmail(e.target.value); setError(''); }}
+                            required
+                        />
                     </div>
-                    <div className="auth-field">
-                        <label>Password</label>
-                        <input type="password" name="password" placeholder="Your password" value={formData.password} onChange={handleChange} required />
-                    </div>
-
-                    <div style={{ textAlign: 'right', marginTop: '-0.5rem', marginBottom: '1rem' }}>
-                        <Link to="/forgot-password" style={{ fontSize: '0.82rem', color: '#e8610a', textDecoration: 'none', fontWeight: 600 }}>
-                            Forgot Password?
-                        </Link>
-                    </div>
-
                     <button type="submit" className="auth-btn" disabled={loading}>
                         {loading && <span className="auth-spinner" />}
-                        {loading ? 'Logging in...' : 'Login'}
+                        {loading ? 'Sending OTP...' : 'Send OTP'}
                     </button>
                 </form>
+
+                <p className="auth-switch">
+                    Remember your password? <Link to="/login">Back to Login</Link>
+                </p>
+                <p className="auth-back">
+                    <Link to="/"><ArrowLeft size={13} style={{ marginRight: 4 }} />Back to Home</Link>
+                </p>
             </div>
 
             <style>{`
@@ -83,9 +82,11 @@ const Login = () => {
                 .auth-brand-name { display: block; font-weight: 900; font-size: 1.15rem; color: #0d1f4f; letter-spacing: 1.5px; }
                 .auth-tagline { font-size: 0.78rem; color: #6b7a99; margin: 0.25rem 0 0; }
                 .auth-divider { height: 1px; background: #e8edf7; margin: 1.25rem 0; }
-                .auth-role-badge { display: inline-block; background: rgba(232,97,10,0.1); color: #e8610a; font-size: 0.8rem; font-weight: 700; padding: 0.3rem 0.9rem; border-radius: 999px; margin-bottom: 0.75rem; }
-                .auth-title { font-weight: 700; color: #0d1f4f; margin-bottom: 1.25rem; font-size: 1rem; }
+                .icon-wrap { width: 56px; height: 56px; background: rgba(13,31,79,0.07); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+                .auth-title { font-weight: 700; color: #0d1f4f; margin-bottom: 0.5rem; font-size: 1rem; }
+                .auth-subtitle { font-size: 0.83rem; color: #6b7a99; margin-bottom: 1.25rem; line-height: 1.6; }
                 .auth-error { background: #fff0f0; border: 1px solid #ffc5c5; color: #c0392b; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; }
+                .auth-success { background: #f0fff4; border: 1px solid #b7ebc8; color: #1a7f3c; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; }
                 .auth-field { margin-bottom: 1rem; }
                 .auth-field label { display: block; font-size: 0.82rem; font-weight: 600; color: #0d1f4f; margin-bottom: 0.4rem; }
                 .auth-field input { width: 100%; padding: 0.65rem 0.9rem; border: 1px solid #dde2ef; border-radius: 10px; font-size: 0.9rem; color: #0d1f4f; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
@@ -95,9 +96,15 @@ const Login = () => {
                 .auth-btn:disabled { opacity: 0.7; cursor: not-allowed; }
                 .auth-spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: authSpin 0.7s linear infinite; flex-shrink: 0; }
                 @keyframes authSpin { to { transform: rotate(360deg); } }
+                .auth-switch { text-align: center; font-size: 0.85rem; color: #6b7a99; margin-top: 1rem; margin-bottom: 0.5rem; }
+                .auth-switch a { color: #e8610a; font-weight: 600; text-decoration: none; }
+                .auth-switch a:hover { text-decoration: underline; }
+                .auth-back { text-align: center; margin: 0; }
+                .auth-back a { font-size: 0.82rem; color: #6b7a99; text-decoration: none; display: inline-flex; align-items: center; }
+                .auth-back a:hover { color: #0d1f4f; }
             `}</style>
         </div>
     );
 };
 
-export default Login;
+export default ForgotPassword;

@@ -9,7 +9,10 @@ import OrderDetails from './pages/OrderDetails';
 import Drivers from './pages/Drivers';
 import Customers from './pages/Customers';
 import Notifications from './pages/Notifications';
-import AuthGuard from './components/AuthGuard';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyOTP from './pages/VerifyOtp';
+import ResetPassword from './pages/ResetPassword';
+import AuthGuard from './auth/AuthGuard';
 
 // ─── Public Route ─────────────────────────────────────────────
 const PublicRoute = ({ children }) => {
@@ -25,6 +28,9 @@ const PublicRoute = ({ children }) => {
 const AppRoutes = () => (
     <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Auth page — redirect to dashboard if already logged in */}
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />

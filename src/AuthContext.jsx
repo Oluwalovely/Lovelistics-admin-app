@@ -1,35 +1,31 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'universal-cookie';
 
+const cookies = new Cookies();
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // ─── Load user from sessionStorage on app start ───────────
-    // sessionStorage clears automatically when the browser/tab is closed
-    // so users must log in again on every new session
     useEffect(() => {
-        const savedUser = sessionStorage.getItem('admin_user');
-        const savedToken = sessionStorage.getItem('admin_token');
-
+        const savedUser = cookies.get('admin_user');
+        const savedToken = cookies.get('admin_token');
         if (savedUser && savedToken) {
-            setUser(JSON.parse(savedUser));
+            setUser(savedUser);
         }
         setLoading(false);
     }, []);
 
-    // ─── Login ────────────────────────────────────────────────
     const login = (userData, token) => {
-        sessionStorage.setItem('admin_user', JSON.stringify(userData));
-        sessionStorage.setItem('admin_token', token);
+        cookies.set('admin_user', userData, { path: '/', maxAge: 18000 });
+        cookies.set('admin_token', token, { path: '/', maxAge: 18000 });
         setUser(userData);
     };
 
-    // ─── Logout ───────────────────────────────────────────────
     const logout = () => {
-        sessionStorage.removeItem('admin_user');
-        sessionStorage.removeItem('admin_token');
+        cookies.remove('admin_user', { path: '/' });
+        cookies.remove('admin_token', { path: '/' });
         setUser(null);
     };
 
