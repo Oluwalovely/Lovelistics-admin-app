@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAllDrivers } from "../services/api";
-import Navbar from "../components/Navbar";
+
 
 const Drivers = () => {
     const [drivers, setDrivers] = useState([]);
@@ -32,7 +32,7 @@ const Drivers = () => {
 
     return (
         <>
-            <Navbar />
+            {/* <div style={{backgroundColor: "#0d1f4f", height: 64}}></div> */}
             <div className="container-fluid py-4" style={{ maxWidth: 1400 }}>
                 <div className="mb-4">
                     <h5 className="fw-bold mb-0" style={{ color: "#0d1f4f" }}>

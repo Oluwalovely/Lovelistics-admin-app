@@ -6,7 +6,6 @@ import {
   markAllAsRead,
   markOneAsRead,
 } from "../services/api";
-import Navbar from "../components/Navbar";
 
 const notifAccent = {
   ORDER_PLACED: "#0d1f4f",
@@ -60,7 +59,7 @@ const Notifications = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="container py-4">
         <div className="row justify-content-center">
           <div className="col-md-7">

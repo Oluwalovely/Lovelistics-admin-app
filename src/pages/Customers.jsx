@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { getAllCustomers } from "../services/api";
-import Navbar from "../components/Navbar";
+
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -32,7 +32,7 @@ const Customers = () => {
 
   return (
     <>
-      <Navbar />
+      
       <div className="container-fluid py-4" style={{ maxWidth: 1400 }}>
         <div className="mb-4">
           <h5 className="fw-bold mb-0" style={{ color: "#0d1f4f" }}>

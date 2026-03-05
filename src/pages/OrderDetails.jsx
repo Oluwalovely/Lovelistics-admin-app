@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Package, Camera, User, Car, XCircle, Navigation, Trash2 } from 'lucide-react';
 import { getOrderById, assignDriver, cancelOrder, getAllDrivers, getLatestLocation, deleteOrder } from '../services/api';
-import Navbar from '../components/Navbar';
+
 
 const statusColor = {
     'pending':    '#f5a623',
@@ -119,7 +119,7 @@ const OrderDetails = () => {
 
     if (loading) return (
         <>
-            <Navbar />
+            
             <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
                 <div className="spinner-border" style={{ color: '#0d1f4f' }} />
             </div>
@@ -128,7 +128,7 @@ const OrderDetails = () => {
 
     if (!order) return (
         <>
-            <Navbar />
+            
             <div className="container py-4">
                 <div className="alert alert-danger">{error || 'Order not found'}</div>
             </div>
@@ -140,7 +140,7 @@ const OrderDetails = () => {
 
     return (
         <>
-            <Navbar />
+            
             <div className="container py-4">
                 <div className="row justify-content-center">
                     <div className="col-md-8">

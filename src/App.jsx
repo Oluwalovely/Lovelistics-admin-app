@@ -13,8 +13,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyOTP from './pages/VerifyOtp';
 import ResetPassword from './pages/ResetPassword';
 import AuthGuard from './auth/AuthGuard';
+import SidebarLayout from './components/Sidebarlayout';
 
-// ─── Public Route ─────────────────────────────────────────────
 const PublicRoute = ({ children }) => {
     const { user, loading } = useAuth();
     if (loading) return (
@@ -31,20 +31,17 @@ const AppRoutes = () => (
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-
-        {/* Auth page — redirect to dashboard if already logged in */}
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-        {/* Protected routes — AuthGuard redirects to /login if not authenticated */}
+        {/* Protected routes wrapped in SidebarLayout */}
         <Route element={<AuthGuard />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/orders/:orderId" element={<OrderDetails />} />
-            <Route path="/drivers" element={<Drivers />} />
-            <Route path="/customers" element={<Customers />} />
-            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/dashboard"         element={<SidebarLayout><Dashboard /></SidebarLayout>} />
+            <Route path="/orders/:orderId"   element={<SidebarLayout><OrderDetails /></SidebarLayout>} />
+            <Route path="/drivers"           element={<SidebarLayout><Drivers /></SidebarLayout>} />
+            <Route path="/customers"         element={<SidebarLayout><Customers /></SidebarLayout>} />
+            <Route path="/notifications"     element={<SidebarLayout><Notifications /></SidebarLayout>} />
         </Route>
 
-        {/* Catch all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
 );
