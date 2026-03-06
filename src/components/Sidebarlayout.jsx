@@ -15,14 +15,16 @@ const SidebarLayout = ({ children }) => {
     const sidebarWidth = isMobile ? 0 : collapsed ? 64 : 240;
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: '#f8fafc' }}>
+        <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
             <Sidebar onCollapse={setCollapsed} />
             <main style={{
-                marginLeft: sidebarWidth,
-                marginTop: isMobile ? 56 : 0,
-                flex: 1,
-                minWidth: 0,
-                transition: 'margin-left 0.25s ease',
+                paddingLeft: sidebarWidth,
+                paddingTop: isMobile ? 56 : 0,
+                minHeight: '100vh',
+                width: '100%',
+                boxSizing: 'border-box',
+                overflowX: 'hidden',
+                transition: 'padding-left 0.25s ease',
             }}>
                 {children}
             </main>

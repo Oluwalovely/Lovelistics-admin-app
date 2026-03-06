@@ -9,7 +9,7 @@ import {
     Package, Clock, Zap, CheckCircle, XCircle, TrendingUp,
     AlertTriangle, MapPin, Flag, Search, ChevronUp, ChevronDown,
     ChevronsUpDown, ArrowRight, CircleDollarSign, Target,
-    Star, Trophy, Medal, Bell, User, RefreshCw
+    Star, Trophy, Medal, Bell, User, RefreshCw, Car, Bike, Truck
 } from 'lucide-react';
 
 // ── Design Tokens ─────────────────────────────────────────────
@@ -46,13 +46,16 @@ const statusCfg = {
 const isDelayed  = o => o.status === 'pending' && (Date.now() - new Date(o.createdAt)) / 36e5 > 2;
 const isActive   = o => ['assigned', 'picked-up', 'in-transit'].includes(o.status);
 const isDone     = o => ['delivered', 'confirmed'].includes(o.status);
-const todayRev   = orders => { const d = new Date().toDateString(); return orders.filter(o => new Date(o.createdAt).toDateString() === d).reduce((s, o) => s + (o.price || 0), 0); };
+const todayRev   = orders => { const d = new Date().toDateString(); return orders.filter(o => ['delivered', 'confirmed'].includes(o.status) && new Date(o.deliveredAt || o.confirmedAt).toDateString() === d).reduce((s, o) => s + (o.price || 0), 0); };
 const doneToday  = orders => { const d = new Date().toDateString(); return orders.filter(o => isDone(o) && new Date(o.updatedAt || o.createdAt).toDateString() === d).length; };
 
 const ordersPerDay = orders => {
     const m = {};
     orders.forEach(o => { const k = new Date(o.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); m[k] = (m[k] || 0) + 1; });
-    return Object.entries(m).slice(-7).map(([date, count]) => ({ date, count }));
+    return Object.entries(m)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .slice(-7)
+        .map(([date, count]) => ({ date, count }));
 };
 
 const topCustomers = (orders, n = 3) => {
@@ -143,7 +146,17 @@ const Dashboard = () => {
         finally { setLoading(false); setRefreshing(false); }
     };
 
-    useEffect(() => { fetchData(); }, []);
+    useEffect(() => {
+        fetchData();
+        // Poll drivers every 15 seconds
+        const poll = setInterval(async () => {
+            try {
+                const dR = await getAllDrivers();
+                setDrivers(dR.data.data);
+            } catch {}
+        }, 15000);
+        return () => clearInterval(poll);
+    }, []);
 
     const stats = useMemo(() => ({
         total:     orders.length,
@@ -201,14 +214,15 @@ const Dashboard = () => {
     );
 
     return (
-        <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'Inter', system-ui, sans-serif" }}>
+        <div style={{ minHeight: '100vh', background: C.bg, fontFamily: "'Inter', system-ui, sans-serif", overflowX: 'hidden', width: '100%', boxSizing: 'border-box' }}>
 
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+                *, *::before, *::after { box-sizing: border-box; }
                 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
                 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 
-                .dash-wrap       { max-width:1500px; margin:0 auto; padding:0 1.5rem 2.5rem; animation: fadeIn 0.4s ease; }
+                .dash-wrap       { max-width:1500px; margin:0 auto; padding:0 1.5rem 2.5rem; animation: fadeIn 0.4s ease; overflow-x:hidden; }
                 .topbar          { position:sticky; top:0; z-index:50; background:rgba(241,244,249,0.92); backdrop-filter:blur(12px); border-bottom:1px solid ${C.border}; padding:0.85rem 1.5rem; display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:0.75rem; }
                 .topbar-search   { grid-column:1/-1; order:3; }
                 @media(min-width:769px) { .topbar { grid-template-columns:1fr auto auto; } .topbar-search { grid-column:auto; order:0; } .topbar-date { display:block !important; } }
@@ -227,14 +241,17 @@ const Dashboard = () => {
                 @media(max-width:1024px) { .ops-grid { grid-template-columns:1fr; } .driver-panel { position:static; } }
                 @media(max-width:768px)  {
                     .kpi-grid { grid-template-columns:repeat(2,1fr); }
+                    .ops-grid { grid-template-columns:1fr; }
                     .insights-grid { grid-template-columns:1fr 1fr; }
                     .topcust-grid { grid-template-columns:1fr; }
+                    .driver-panel { position:static; }
                     .table-wrap { display:none; }
                     .card-list  { display:block; }
                     .topbar     { padding:0.65rem 1rem; }
                     .dash-wrap  { padding:0 0.75rem 2rem; }
                 }
                 @media(max-width:480px) { .kpi-grid { grid-template-columns:1fr 1fr; } .insights-grid { grid-template-columns:1fr; } }
+                @media(max-width:320px) { .kpi-grid { grid-template-columns:1fr; }
             `}</style>
 
             {/* ── Topbar ── */}
@@ -446,7 +463,10 @@ const Dashboard = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                             <div>
                                 <h6 style={{ fontWeight: 700, color: C.navy, margin: 0, fontSize: '0.9rem' }}>Driver Activity</h6>
-                                <p style={{ color: C.faint, fontSize: '0.72rem', margin: '0.1rem 0 0' }}>Live operations feed</p>
+                                <p style={{ color: C.faint, fontSize: '0.72rem', margin: '0.1rem 0 0', display: 'flex', alignItems: 'center', gap: 5 }}>
+                                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.green, display: 'inline-block', animation: 'pulse 2s infinite' }} />
+                                    Live · refreshes every 15s
+                                </p>
                             </div>
                             <div style={{ width: 36, height: 36, borderRadius: 10, background: `${C.teal}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.teal }}>
                                 <MapPin size={17} />
@@ -466,22 +486,50 @@ const Dashboard = () => {
                                 ? <div style={{ textAlign: 'center', padding: '2rem', color: C.faint }}><User size={28} style={{ opacity: 0.25 }} /><p style={{ margin: '0.5rem 0 0', fontSize: '0.82rem' }}>No drivers found</p></div>
                                 : drivers.map(d => {
                                     const hasLoc = d.currentLocation?.lat && d.currentLocation?.lng;
+                                    const getVehicleIcon = type => {
+                                        if (type === 'bike' || type === 'motorcycle') return <Bike size={12} color={C.muted} />;
+                                        if (type === 'van'  || type === 'truck')      return <Truck size={12} color={C.muted} />;
+                                        if (type === 'car')                           return <Car size={12} color={C.muted} />;
+                                        return null;
+                                    };
                                     return (
-                                        <div key={d._id} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', padding: '0.7rem', borderRadius: 11, background: '#f8fafc', border: `1px solid ${C.border}`, marginBottom: '0.5rem', transition: 'background 0.15s' }}
+                                        <div key={d._id} style={{ padding: '0.75rem', borderRadius: 12, background: '#f8fafc', border: `1px solid ${C.border}`, marginBottom: '0.5rem', transition: 'background 0.15s' }}
                                             onMouseEnter={e => e.currentTarget.style.background = '#f1f5f9'}
                                             onMouseLeave={e => e.currentTarget.style.background = '#f8fafc'}>
-                                            <div style={{ width: 38, height: 38, borderRadius: '50%', background: C.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.9rem', flexShrink: 0 }}>
-                                                {d.fullName?.charAt(0).toUpperCase()}
+                                            {/* Top row */}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.45rem' }}>
+                                                <div style={{ width: 36, height: 36, borderRadius: '50%', background: C.navy, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0 }}>
+                                                    {d.fullName?.charAt(0).toUpperCase()}
+                                                </div>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                        <p style={{ margin: 0, fontWeight: 700, color: C.navy, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.fullName}</p>
+                                                        {/* Approval dot */}
+                                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: d.isApproved ? C.green : C.amber, flexShrink: 0 }} title={d.isApproved ? 'Approved' : 'Pending approval'} />
+                                                    </div>
+                                                    <p style={{ margin: 0, fontSize: '0.68rem', color: C.faint }}>
+                                                        {hasLoc ? `${d.currentLocation.lat.toFixed(4)}° N, ${d.currentLocation.lng.toFixed(4)}° E` : 'Location unavailable'}
+                                                    </p>
+                                                </div>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+                                                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: hasLoc ? C.green : '#cbd5e1' }} />
+                                                    <span style={{ fontSize: '0.58rem', color: hasLoc ? C.green : C.faint, fontWeight: 600 }}>{hasLoc ? 'Active' : 'Offline'}</span>
+                                                </div>
                                             </div>
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <p style={{ margin: 0, fontWeight: 700, color: C.navy, fontSize: '0.82rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.fullName}</p>
-                                                <p style={{ margin: 0, fontSize: '0.68rem', color: C.faint }}>
-                                                    {hasLoc ? `${d.currentLocation.lat.toFixed(4)}° N, ${d.currentLocation.lng.toFixed(4)}° E` : 'Location unavailable'}
-                                                </p>
-                                            </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: hasLoc ? C.green : '#cbd5e1', flexShrink: 0 }} />
-                                                <span style={{ fontSize: '0.6rem', color: hasLoc ? C.green : C.faint, fontWeight: 600 }}>{hasLoc ? 'Active' : 'Offline'}</span>
+                                            {/* Bottom row — vehicle + deliveries */}
+                                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.4rem', borderTop: `1px solid ${C.border}`, gap: '0.5rem' }}>
+                                                <span style={{ fontSize: '0.7rem', color: C.muted, display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                    {d.vehicleType
+                                                        ? <span style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+                                                            {getVehicleIcon(d.vehicleType)}
+                                                            <span style={{ textTransform: 'capitalize', whiteSpace: 'nowrap' }}>{d.vehicleType}</span>
+                                                            {d.vehiclePlate ? <span style={{ whiteSpace: 'nowrap' }}>· {d.vehiclePlate}</span> : ''}
+                                                          </span>
+                                                        : <span style={{ color: C.faint }}>No vehicle info</span>}
+                                                </span>
+                                                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: C.navy, background: '#e2e8f0', padding: '2px 7px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                                    {d.totalDeliveries} {d.totalDeliveries === 1 ? 'delivery' : 'deliveries'}
+                                                </span>
                                             </div>
                                         </div>
                                     );

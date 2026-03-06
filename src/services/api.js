@@ -35,6 +35,7 @@ export const deleteOrder = (orderId) => API.delete(`/orders/${orderId}`);
 
 export const getAllDrivers = () => API.get('/drivers');
 export const getAllCustomers = () => API.get('/customers');
+export const approveDriver = (driverId) => API.patch(`/drivers/${driverId}/approve`);
 
 export const getMyNotifications = () => API.get('/notifications');
 export const markAllAsRead = () => API.patch('/notifications/read-all');

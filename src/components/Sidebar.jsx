@@ -8,35 +8,38 @@ import {
 } from 'lucide-react';
 import logo from '../assets/logo.png';
 
-
 const NAV = [
-    { to: '/dashboard', icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
-    { to: '/drivers', icon: <Car size={18} />, label: 'Drivers' },
-    { to: '/customers', icon: <Users size={18} />, label: 'Customers' },
-    { to: '/notifications', icon: <Bell size={18} />, label: 'Notifications', badge: true },
+    { to: '/dashboard',     icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/drivers',       icon: <Car size={18} />,             label: 'Drivers' },
+    { to: '/customers',     icon: <Users size={18} />,           label: 'Customers' },
+    { to: '/notifications', icon: <Bell size={18} />,            label: 'Notifications', badge: true },
 ];
 
-
-
-const Sidebar = () => {
+const Sidebar = ({ onCollapse }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [unread, setUnread] = useState(0);
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    const toggleCollapse = () => {
+        const next = !collapsed;
+        setCollapsed(next);
+        if (onCollapse) onCollapse(next);
+    };
 
     useEffect(() => {
         if (user) {
             getMyNotifications()
                 .then(r => setUnread(r.data.unreadCount))
-                .catch(() => { });
+                .catch(() => {});
         }
     }, [user, location]);
 
     useEffect(() => { setMobileOpen(false); }, [location]);
 
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const handleLogout = () => { logout(); navigate('/login'); };
     const isActive = path => location.pathname === path;
 
@@ -59,7 +62,7 @@ const Sidebar = () => {
                         <img src={logo} alt="logo" style={{ width: 32, height: 32, objectFit: 'contain', borderRadius: 8 }} />
                     </Link>
                 )}
-                <button onClick={() => setCollapsed(c => !c)}
+                <button onClick={toggleCollapse}
                     className="collapse-btn-desktop"
                     style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 8, width: 30, height: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', flexShrink: 0 }}>
                     {collapsed ? <ChevronRight size={15} /> : <Menu size={15} />}
@@ -84,8 +87,8 @@ const Sidebar = () => {
                                 transition: 'background 0.15s, color 0.15s',
                                 position: 'relative',
                             }}
-                            onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; } }}
-                            onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; } }}
+                            onMouseEnter={e => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#fff'; }}}
+                            onMouseLeave={e => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.65)'; }}}
                         >
                             <span style={{ flexShrink: 0, position: 'relative' }}>
                                 {icon}
@@ -127,7 +130,6 @@ const Sidebar = () => {
         </div>
     );
 
-
     return (
         <>
             <style>{`
@@ -138,18 +140,6 @@ const Sidebar = () => {
                     transition: width 0.25s ease;
                     display: flex; flex-direction: column;
                 }
-                .sidebar-mobile-overlay {
-                    display: none;
-                    position: fixed; inset: 0; z-index: 200;
-                    background: rgba(0,0,0,0.5);
-                }
-                .sidebar-mobile-drawer {
-                    position: fixed; top: 0; left: 0; height: 100vh;
-                    width: 240px; background: #0d1f4f; z-index: 201;
-                    box-shadow: 4px 0 24px rgba(0,0,0,0.2);
-                }
-                .collapse-btn-desktop { display: flex; }
-@media (max-width: 768px) { .collapse-btn-desktop { display: none !important; } }
                 .topbar-mobile {
                     display: none;
                     position: fixed; top: 0; left: 0; right: 0; height: 56px;
@@ -158,13 +148,11 @@ const Sidebar = () => {
                     padding: 0 1rem;
                     box-shadow: 0 2px 12px rgba(0,0,0,0.15);
                 }
+                .collapse-btn-desktop { display: flex; }
                 @media (max-width: 768px) {
                     .sidebar-desktop { display: none !important; }
-                    .topbar-mobile   { display: flex !important; }
-                }
-                @media (min-width: 769px) {
-                    .sidebar-mobile-overlay,
-                    .sidebar-mobile-drawer { display: none !important; }
+                    .topbar-mobile { display: flex !important; }
+                    .collapse-btn-desktop { display: none !important; }
                 }
             `}</style>
 
@@ -208,36 +196,30 @@ const Sidebar = () => {
                     </div>
                 </div>
             )}
-
-            {
-                showLogoutModal && (
-                    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-                        <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', maxWidth: 360, width: '100%', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
-                            <div style={{ width: 60, height: 60, background: 'rgba(13,31,79,0.08)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-                                <LogOut size={28} color="#0d1f4f" />
-                            </div>
-                            <h5 style={{ fontWeight: 700, color: '#0d1f4f', marginBottom: '0.5rem' }}>Log Out?</h5>
-                            <p style={{ color: '#6b7a99', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
-                                Are you sure you want to log out of your account?
-                            </p>
-                            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                                <button onClick={() => setShowLogoutModal(false)}
-                                    onMouseEnter={e => { e.currentTarget.style.background = '#f4f6fb'; e.currentTarget.style.borderColor = '#0d1f4f'; e.currentTarget.style.color = '#0d1f4f'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#dde2ef'; e.currentTarget.style.color = '#6b7a99'; }}
-                                    style={{ padding: '0.6rem 1.5rem', borderRadius: 10, border: '1px solid #dde2ef', background: '#fff', color: '#6b7a99', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}>
-                                    Stay
-                                </button>
-                                <button onClick={handleLogout}
-                                    onMouseEnter={e => { e.currentTarget.style.background = '#162660'; e.currentTarget.style.transform = 'scale(1.03)'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.background = '#0d1f4f'; e.currentTarget.style.transform = 'scale(1)'; }}
-                                    style={{ padding: '0.6rem 1.5rem', borderRadius: 10, border: 'none', background: '#0d1f4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem', transition: 'all 0.2s' }}>
-                                    Yes, Log Out
-                                </button>
-                            </div>
+            {/* Logout Confirmation Modal */}
+            {showLogoutModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+                    <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', maxWidth: 360, width: '100%', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.15)' }}>
+                        <div style={{ width: 60, height: 60, background: 'rgba(13,31,79,0.08)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
+                            <LogOut size={28} color="#0d1f4f" />
+                        </div>
+                        <h5 style={{ fontWeight: 700, color: '#0d1f4f', marginBottom: '0.5rem' }}>Log Out?</h5>
+                        <p style={{ color: '#6b7a99', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+                            Are you sure you want to log out of your account?
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                            <button onClick={() => setShowLogoutModal(false)}
+                                style={{ padding: '0.6rem 1.5rem', borderRadius: 10, border: '1px solid #dde2ef', background: '#fff', color: '#6b7a99', fontWeight: 600, cursor: 'pointer', fontSize: '0.9rem' }}>
+                                Stay
+                            </button>
+                            <button onClick={handleLogout}
+                                style={{ padding: '0.6rem 1.5rem', borderRadius: 10, border: 'none', background: '#0d1f4f', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: '0.9rem' }}>
+                                Yes, Log Out
+                            </button>
                         </div>
                     </div>
-                )
-            }
+                </div>
+            )}
         </>
     );
 };
