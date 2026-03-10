@@ -23,6 +23,15 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
     };
 
+    // ── NEW: merge partial profile updates into state + cookie ─
+    const updateUser = (partial) => {
+        setUser(prev => {
+            const updated = { ...prev, ...partial };
+            cookies.set('admin_user', updated, { path: '/', maxAge: 18000 });
+            return updated;
+        });
+    };
+
     const logout = () => {
         cookies.remove('admin_user', { path: '/' });
         cookies.remove('admin_token', { path: '/' });
@@ -30,7 +39,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
             {children}
         </AuthContext.Provider>
     );

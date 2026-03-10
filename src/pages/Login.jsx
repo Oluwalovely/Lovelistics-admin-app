@@ -112,6 +112,9 @@ const Login = () => {
                 </form>
             </div>
 
+            {/* Copyright */}
+            <p className="auth-copyright">© {new Date().getFullYear()} LOVELISTICS. All rights reserved.</p>
+
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
                 *, *::before, *::after { box-sizing: border-box; }
@@ -123,9 +126,10 @@ const Login = () => {
                         radial-gradient(ellipse at 65% 0%, rgba(13,31,79,0.07) 0%, transparent 65%),
                         radial-gradient(ellipse at 0% 100%, rgba(232,97,10,0.05) 0%, transparent 60%);
                     display: flex;
+                    flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    padding: 2rem 1.25rem;
+                    padding: 2rem 1.25rem 1.5rem;
                     font-family: 'Inter', system-ui, sans-serif;
                 }
 
@@ -141,9 +145,17 @@ const Login = () => {
                         0 20px 56px rgba(13,31,79,0.10);
                 }
 
+                .auth-copyright {
+                    margin: 1.25rem 0 0;
+                    font-size: 0.72rem;
+                    color: #b0bcd4;
+                    text-align: center;
+                    letter-spacing: 0.2px;
+                }
+
                 .auth-brand { text-align: center; margin-bottom: 1.75rem; }
                 .auth-logo {
-                    width: 62px; height: 62px; object-fit: contain;
+                    width: 90px; height: 90px; object-fit: contain;
                     display: block; margin: 0 auto 1rem;
                     border-radius: 14px;
                     box-shadow: 0 2px 12px rgba(13,31,79,0.12);

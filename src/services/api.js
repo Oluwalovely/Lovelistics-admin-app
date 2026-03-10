@@ -45,3 +45,9 @@ export const getLatestLocation = (orderId) => API.get(`/orders/${orderId}/tracki
 export const forgotPassword = (data) => API.post('/forgot-password', data);
 export const verifyOTP = (data) => API.post('/verify-otp', data);
 export const resetPassword = (data) => API.post('/reset-password', data);
+
+export const getMe = () => API.get('/me');
+export const updateProfile = (formData) => API.patch('/update-profile', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+});
+export const changePassword = (data) => API.post('/change-password', data);

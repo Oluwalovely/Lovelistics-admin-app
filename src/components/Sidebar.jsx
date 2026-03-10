@@ -3,8 +3,8 @@ import { useAuth } from '../AuthContext';
 import { useState, useEffect } from 'react';
 import { getMyNotifications } from '../services/api';
 import {
-    LayoutDashboard, Package, Car, Users, Bell,
-    LogOut, Menu, X, ChevronRight
+    LayoutDashboard, Package, Car, Users, Bell, User,
+    LogOut, Menu, X, ChevronRight, TrendingUp
 } from 'lucide-react';
 import logo from '../assets/logo.png';
 
@@ -12,7 +12,9 @@ const NAV = [
     { to: '/dashboard',     icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
     { to: '/drivers',       icon: <Car size={18} />,             label: 'Drivers' },
     { to: '/customers',     icon: <Users size={18} />,           label: 'Customers' },
+    { to: '/revenue',       icon: <TrendingUp size={18} />,      label: 'Revenue' },
     { to: '/notifications', icon: <Bell size={18} />,            label: 'Notifications', badge: true },
+    { to: '/profile',       icon: <User size={18} />,            label: 'My Profile' },
 ];
 
 const Sidebar = ({ onCollapse }) => {
@@ -108,15 +110,20 @@ const Sidebar = ({ onCollapse }) => {
             {/* User + Logout */}
             <div style={{ padding: '0.75rem', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
                 {!collapsed && (
-                    <div style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e8610a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem', color: '#fff', flexShrink: 0 }}>
-                            {user?.fullName?.charAt(0).toUpperCase()}
-                        </div>
+                    <Link to="/profile" style={{ padding: '0.6rem 0.75rem', borderRadius: 10, background: 'rgba(255,255,255,0.05)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none', transition: 'background 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}>
+                        {user?.avatar
+                            ? <img src={user.avatar} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' }} />
+                            : <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#e8610a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.85rem', color: '#fff', flexShrink: 0 }}>
+                                {user?.fullName?.charAt(0).toUpperCase()}
+                              </div>
+                        }
                         <div style={{ minWidth: 0 }}>
                             <p style={{ margin: 0, fontWeight: 700, color: '#fff', fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.fullName}</p>
                             <p style={{ margin: 0, fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)' }}>Administrator</p>
                         </div>
-                    </div>
+                    </Link>
                 )}
                 <button onClick={() => setShowLogoutModal(true)}
                     style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: collapsed ? 'center' : 'flex-start', gap: '0.6rem', padding: collapsed ? '0.7rem' : '0.65rem 0.9rem', borderRadius: 10, background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer', transition: 'border-color 0.15s, color 0.15s' }}

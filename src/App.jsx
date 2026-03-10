@@ -14,6 +14,8 @@ import VerifyOTP from './pages/VerifyOtp';
 import ResetPassword from './pages/ResetPassword';
 import AuthGuard from './auth/AuthGuard';
 import SidebarLayout from './components/Sidebarlayout';
+import Profile from './pages/Profile';
+import Revenue from './pages/Revenue';
 
 const PublicRoute = ({ children }) => {
     const { user, loading } = useAuth();
@@ -40,6 +42,8 @@ const AppRoutes = () => (
             <Route path="/drivers"           element={<SidebarLayout><Drivers /></SidebarLayout>} />
             <Route path="/customers"         element={<SidebarLayout><Customers /></SidebarLayout>} />
             <Route path="/notifications"     element={<SidebarLayout><Notifications /></SidebarLayout>} />
+            <Route path="/profile"     element={<SidebarLayout><Profile /></SidebarLayout>} />
+            <Route path="/revenue"     element={<SidebarLayout><Revenue /></SidebarLayout>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
