@@ -64,15 +64,15 @@ const Badge = ({ status }) => {
 };
 
 const KPICard = ({ title, value, icon, color, sub, prefix='' }) => (
-    <div style={{ background:C.white,borderRadius:14,padding:'1.4rem',...shadow,border:`1px solid ${C.border}`,cursor:'default',transition:'transform 0.18s, box-shadow 0.18s' }}
+    <div className="kpi-card" style={{ background:C.white,borderRadius:14,...shadow,border:`1px solid ${C.border}`,cursor:'default',transition:'transform 0.18s, box-shadow 0.18s' }}
         onMouseEnter={e=>{ e.currentTarget.style.transform='translateY(-3px)'; e.currentTarget.style.boxShadow='0 8px 32px rgba(13,31,79,0.12)'; }}
         onMouseLeave={e=>{ e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 1px 3px rgba(13,31,79,0.06), 0 4px 20px rgba(13,31,79,0.05)'; }}>
-        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'1rem' }}>
-            <div style={{ width:44,height:44,borderRadius:12,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',color }}>{icon}</div>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'0.5rem' }}>
+            <div style={{ width:34,height:34,borderRadius:9,background:`${color}15`,display:'flex',alignItems:'center',justifyContent:'center',color,flexShrink:0 }}>{icon}</div>
         </div>
-        <p style={{ margin:0,fontSize:'0.72rem',fontWeight:600,color:C.faint,textTransform:'uppercase',letterSpacing:'0.8px' }}>{title}</p>
-        <h2 style={{ margin:'0.2rem 0 0',fontSize:'1.9rem',fontWeight:800,color:C.navy,lineHeight:1 }}>{prefix}{typeof value==='number'?value.toLocaleString():value}</h2>
-        {sub&&<p style={{ margin:'0.3rem 0 0',fontSize:'0.72rem',color:C.faint }}>{sub}</p>}
+        <p style={{ margin:0,fontSize:'0.63rem',fontWeight:600,color:C.faint,textTransform:'uppercase',letterSpacing:'0.6px',lineHeight:1.3 }}>{title}</p>
+        <h2 style={{ margin:'0.2rem 0 0',fontSize:'1.45rem',fontWeight:800,color:C.navy,lineHeight:1 }}>{prefix}{typeof value==='number'?value.toLocaleString():value}</h2>
+        {sub&&<p style={{ margin:'0.2rem 0 0',fontSize:'0.63rem',color:C.faint }}>{sub}</p>}
     </div>
 );
 
@@ -177,7 +177,7 @@ const Dashboard = () => {
     );
 
     return (
-        <div style={{ minHeight:'100vh',background:C.bg,fontFamily:"'Sora',system-ui,sans-serif",overflowX:'hidden',width:'100%',boxSizing:'border-box' }}>
+        <div style={{ minHeight:'100vh',background:C.bg,fontFamily:"'Sora',system-ui,sans-serif",width:'100%',boxSizing:'border-box',overflowX:'hidden' }}>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
                 *,*::before,*::after{box-sizing:border-box;}
@@ -186,17 +186,53 @@ const Dashboard = () => {
                 @keyframes fadeIn   {from{opacity:0}to{opacity:1}}
                 @keyframes scaleIn  {from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
 
-                .dash-wrap     {max-width:1500px;margin:0 auto;padding:0 1.5rem 2.5rem;overflow-x:hidden;animation:fadeIn 0.4s ease;}
-                .topbar        {position:sticky;top:0;z-index:50;background:rgba(241,244,249,0.95);backdrop-filter:blur(14px);border-bottom:1px solid ${C.border};padding:0.85rem 1.5rem;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:0.75rem;}
-                .topbar-search {grid-column:1/-1;order:3;}
-                .topbar-date   {display:none;}
-                @media(min-width:769px){.topbar{grid-template-columns:1fr auto auto;}.topbar-search{grid-column:auto;order:0;}.topbar-date{display:block!important;}}
-                .kpi-grid      {display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:1.75rem;}
-                .ops-grid      {display:grid;grid-template-columns:1fr 300px;gap:1.5rem;margin-bottom:1.75rem;align-items:start;}
+                .dash-wrap   { max-width:1500px; margin:0 auto; padding:0 1rem 2.5rem; animation:fadeIn 0.4s ease; overflow-x:hidden; }
+                @media(min-width:769px) { .dash-wrap { padding:0 1.25rem 2.5rem; } }
+
+                /* ── Topbar ── */
+                .topbar {
+                    position:sticky; top:0; z-index:50;
+                    background:rgba(241,244,249,0.97); backdrop-filter:blur(14px);
+                    border-bottom:1px solid ${C.border};
+                    padding:0.65rem 1rem;
+                    display:flex; align-items:center; gap:0.6rem;
+                    flex-wrap:wrap;
+                }
+                .topbar-left  { display:flex; flex-direction:column; gap:0.05rem; flex:1; min-width:0; }
+                .topbar-right { display:flex; align-items:center; gap:0.4rem; flex-shrink:0; }
+                /* search goes full-width below on mobile */
+                .topbar-search-wrap { order:3; flex:0 0 100%; }
+                .topbar-search-wrap input { width:100%; }
+                .topbar-date { display:none; }
+
+                /* profile chip — hide name on very small screens */
+                .chip-name { display:none; }
+                @media(min-width:400px) { .chip-name { display:inline; } }
+                @media(min-width:640px) { .topbar-date { display:block; } }
+                @media(min-width:769px) {
+                    .topbar { flex-wrap:nowrap; padding:0.75rem 1.25rem; }
+                    .topbar-search-wrap { order:0; flex:1; max-width:380px; }
+                }
+
+                /* ── KPI Grid ── */
+                /* Mobile: 2 col compact */
+                .kpi-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:0.6rem; margin-bottom:1.25rem; }
+                /* Tablet: 3 col */
+                @media(min-width:600px)  { .kpi-grid { grid-template-columns:repeat(3,1fr); gap:0.85rem; margin-bottom:1.5rem; } }
+                /* Desktop: 6 col */
+                @media(min-width:1100px) { .kpi-grid { grid-template-columns:repeat(6,1fr); gap:1rem; } }
+
+                /* KPI card padding — tight on mobile, roomier on desktop */
+                .kpi-card { padding: 0.75rem; }
+                @media(min-width:480px) { .kpi-card { padding: 0.9rem; } }
+                @media(min-width:768px) { .kpi-card { padding: 1rem 1.1rem; } }
+
+                .ops-grid      { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; margin-bottom:1.75rem; align-items:start; width:100%; min-width:0; }
+                .ops-grid > * { min-width:0; max-width:100%; overflow:hidden; }
                 .insights-grid {display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:1rem;margin-bottom:1.75rem;}
                 .topcust-grid  {display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
                 .driver-panel  {position:sticky;top:72px;}
-                .table-wrap    {display:block;overflow-x:auto;}
+                .table-wrap    { display:block; overflow-x:auto; max-width:100%; }
                 .card-list     {display:none;padding:0.75rem;}
                 .filter-bar    {display:flex;gap:0.4rem;overflow-x:auto;padding-bottom:2px;}
                 .filter-bar::-webkit-scrollbar{height:0;}
@@ -219,36 +255,33 @@ const Dashboard = () => {
                 .topcust-grid>*:nth-child(2){animation:scaleIn 0.4s ease 0.30s both;}
                 .topcust-grid>*:nth-child(3){animation:scaleIn 0.4s ease 0.35s both;}
 
-                @media(max-width:1280px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.insights-grid{grid-template-columns:1fr 1fr;}}
+                @media(max-width:1280px){.insights-grid{grid-template-columns:1fr 1fr;}}
                 @media(max-width:1024px){.ops-grid{grid-template-columns:1fr;}.driver-panel{position:static;}}
                 @media(max-width:768px){
-                    .kpi-grid{grid-template-columns:repeat(2,1fr);}
                     .ops-grid{grid-template-columns:1fr;}
                     .insights-grid{grid-template-columns:1fr 1fr;}
                     .topcust-grid{grid-template-columns:1fr;}
                     .driver-panel{position:static;}
                     .table-wrap{display:none;}
                     .card-list{display:block;}
-                    .topbar{padding:0.65rem 1rem;}
-                    .dash-wrap{padding:0 0.75rem 2rem;}
                 }
-                @media(max-width:480px){.kpi-grid{grid-template-columns:1fr 1fr;}.insights-grid{grid-template-columns:1fr;}}
-                @media(max-width:320px){.kpi-grid{grid-template-columns:1fr;}}
+                @media(max-width:480px){.insights-grid{grid-template-columns:1fr;}}
             `}</style>
 
-            {/* Topbar */}
+            {/* ── Topbar ── */}
             <div className="topbar">
-                <div>
-                    <h1 style={{ fontWeight:800,color:C.navy,fontSize:'1rem',margin:0,lineHeight:1.2,letterSpacing:'-0.3px' }}>
-                        Welcome back, <span style={{ color:C.orange }}>{user?.fullName?.split(' ')[0]}</span>
+                <div className="topbar-left">
+                    <h1 style={{ fontWeight:800,color:C.navy,fontSize:'0.95rem',margin:0,lineHeight:1.2,letterSpacing:'-0.3px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>
+                        Welcome, <span style={{ color:C.orange }}>{user?.fullName?.split(' ')[0]}</span>
                     </h1>
-                    <p style={{ margin:'0.1rem 0 0',fontSize:'0.72rem',color:C.faint,fontWeight:500 }}>Operations Dashboard</p>
-                    <p style={{ margin:'0.1rem 0 0',fontSize:'0.72rem',color:C.faint }} className="topbar-date">
+                    <p style={{ margin:0,fontSize:'0.68rem',color:C.faint,fontWeight:500 }}>Operations Dashboard</p>
+                    <p className="topbar-date" style={{ margin:0,fontSize:'0.68rem',color:C.faint }}>
                         {new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
                     </p>
                 </div>
 
-                <div style={{ display:'flex',alignItems:'center',gap:'0.5rem' }}>
+                <div className="topbar-right">
+                    {/* Notifications */}
                     <Link to="/notifications" style={{ position:'relative',width:36,height:36,borderRadius:10,border:`1px solid ${C.border}`,background:C.white,display:'flex',alignItems:'center',justifyContent:'center',color:C.muted,textDecoration:'none',flexShrink:0,transition:'background 0.15s' }}
                         onMouseEnter={e=>e.currentTarget.style.background='#f1f5f9'}
                         onMouseLeave={e=>e.currentTarget.style.background=C.white}>
@@ -256,41 +289,42 @@ const Dashboard = () => {
                         {unread>0&&<span style={{ position:'absolute',top:-3,right:-3,width:16,height:16,borderRadius:'50%',background:C.orange,color:'#fff',fontSize:'0.52rem',fontWeight:800,display:'flex',alignItems:'center',justifyContent:'center' }}>{unread}</span>}
                     </Link>
 
-                    {/* Clickable profile chip → /profile */}
+                    {/* Profile chip */}
                     <Link to="/profile"
-                        style={{ display:'flex',alignItems:'center',gap:'0.5rem',padding:'0.3rem 0.65rem 0.3rem 0.3rem',borderRadius:10,border:`1px solid ${C.border}`,background:C.white,textDecoration:'none',flexShrink:0,transition:'background 0.15s, box-shadow 0.15s' }}
+                        style={{ display:'flex',alignItems:'center',gap:'0.4rem',padding:'0.28rem 0.55rem 0.28rem 0.28rem',borderRadius:10,border:`1px solid ${C.border}`,background:C.white,textDecoration:'none',flexShrink:0,transition:'background 0.15s, box-shadow 0.15s' }}
                         onMouseEnter={e=>{ e.currentTarget.style.background='#f1f5f9'; e.currentTarget.style.boxShadow='0 2px 10px rgba(13,31,79,0.09)'; }}
                         onMouseLeave={e=>{ e.currentTarget.style.background=C.white; e.currentTarget.style.boxShadow='none'; }}>
                         {user?.avatar
-                            ? <img src={user.avatar} alt="avatar" style={{ width:28,height:28,borderRadius:'50%',objectFit:'cover',flexShrink:0,border:`2px solid ${C.border}` }}/>
-                            : <div style={{ width:28,height:28,borderRadius:'50%',background:C.navy,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:'0.75rem',flexShrink:0 }}>
+                            ? <img src={user.avatar} alt="avatar" style={{ width:26,height:26,borderRadius:'50%',objectFit:'cover',flexShrink:0,border:`2px solid ${C.border}` }}/>
+                            : <div style={{ width:26,height:26,borderRadius:'50%',background:C.navy,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:'0.7rem',flexShrink:0 }}>
                                 {user?.fullName?.charAt(0).toUpperCase()}
                               </div>
                         }
-                        <span style={{ fontSize:'0.78rem',fontWeight:600,color:C.navy }}>{user?.fullName?.split(' ')[0]}</span>
-                        <ChevronRight size={13} color={C.faint}/>
+                        <span className="chip-name" style={{ fontSize:'0.76rem',fontWeight:600,color:C.navy,maxWidth:90,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{user?.fullName?.split(' ')[0]}</span>
+                        <ChevronRight size={12} color={C.faint}/>
                     </Link>
                 </div>
 
-                <div className="topbar-search" style={{ position:'relative',width:'100%',maxWidth:400 }}>
+                {/* Search — full width on mobile, inline on desktop */}
+                <div className="topbar-search-wrap" style={{ position:'relative' }}>
                     <Search size={13} style={{ position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:C.faint,pointerEvents:'none' }}/>
                     <input value={globalSearch} onChange={e=>{ setGlobalSearch(e.target.value); setPage(1); }}
                         placeholder="Search orders, drivers, customers..."
-                        style={{ width:'100%',padding:'0.5rem 0.75rem 0.5rem 2rem',border:`1px solid ${C.border}`,borderRadius:9,fontSize:'0.8rem',color:C.navy,outline:'none',background:C.white,fontFamily:'inherit' }}/>
+                        style={{ padding:'0.5rem 0.75rem 0.5rem 2rem',border:`1px solid ${C.border}`,borderRadius:9,fontSize:'0.8rem',color:C.navy,outline:'none',background:C.white,fontFamily:'inherit',width:'100%' }}/>
                 </div>
             </div>
 
-            <div className="dash-wrap" style={{ paddingTop:'1.5rem' }}>
+            <div className="dash-wrap" style={{ paddingTop:'1.25rem' }}>
                 {error&&<div style={{ background:'#fef2f2',border:'1px solid #fecaca',color:'#991b1b',borderRadius:10,padding:'0.7rem 1rem',fontSize:'0.82rem',marginBottom:'1rem' }}>{error}</div>}
 
                 {/* KPI Cards */}
                 <div className="kpi-grid">
-                    <KPICard title="Total Orders"       value={stats.total}     icon={<Package size={20}/>}          color={C.navy}   sub="All time"/>
-                    <KPICard title="Active Deliveries"  value={stats.active}    icon={<Zap size={20}/>}              color={C.teal}   sub="In progress"/>
-                    <KPICard title="Pending Assignment" value={stats.pending}   icon={<Clock size={20}/>}            color={C.amber}  sub="Awaiting driver"/>
-                    <KPICard title="Completed Today"    value={stats.doneToday} icon={<CheckCircle size={20}/>}      color={C.green}  sub="Delivered today"/>
-                    <KPICard title="Delayed"            value={stats.delayed}   icon={<AlertTriangle size={20}/>}    color={C.red}    sub="Pending 2+ hrs"/>
-                    <KPICard title="Revenue Today"      value={stats.revenue}   icon={<CircleDollarSign size={20}/>} color={C.orange} sub="Delivered orders" prefix="₦"/>
+                    <KPICard title="Total Orders"       value={stats.total}     icon={<Package size={18}/>}          color={C.navy}   sub="All time"/>
+                    <KPICard title="Active"             value={stats.active}    icon={<Zap size={18}/>}              color={C.teal}   sub="In progress"/>
+                    <KPICard title="Pending"            value={stats.pending}   icon={<Clock size={18}/>}            color={C.amber}  sub="Needs driver"/>
+                    <KPICard title="Done Today"         value={stats.doneToday} icon={<CheckCircle size={18}/>}      color={C.green}  sub="Delivered"/>
+                    <KPICard title="Delayed"            value={stats.delayed}   icon={<AlertTriangle size={18}/>}    color={C.red}    sub="Pending 2+ hrs"/>
+                    <KPICard title="Revenue Today"      value={stats.revenue}   icon={<CircleDollarSign size={18}/>} color={C.orange} sub="Delivered" prefix="₦"/>
                 </div>
 
                 {/* Operations */}
@@ -302,11 +336,11 @@ const Dashboard = () => {
                                     <h6 style={{ margin:0,fontWeight:700,color:C.navy,fontSize:'0.95rem' }}>Orders Management</h6>
                                     <p style={{ margin:0,fontSize:'0.72rem',color:C.faint }}>{filtered.length} orders found</p>
                                 </div>
-                                <div style={{ position:'relative' }}>
+                                <div style={{ position:'relative',flex:'1 1 auto',maxWidth:280,minWidth:0 }}>
                                     <Search size={13} style={{ position:'absolute',left:9,top:'50%',transform:'translateY(-50%)',color:C.faint,pointerEvents:'none' }}/>
                                     <input value={search} onChange={e=>{ setSearch(e.target.value); setPage(1); }}
-                                        placeholder="Search tracking ID, customer, driver..."
-                                        style={{ padding:'0.45rem 0.75rem 0.45rem 1.9rem',border:`1px solid ${C.border}`,borderRadius:9,fontSize:'0.8rem',color:C.navy,outline:'none',background:'#f8fafc',width:260,fontFamily:'inherit' }}/>
+                                        placeholder="Search tracking ID, customer..."
+                                        style={{ padding:'0.45rem 0.75rem 0.45rem 1.9rem',border:`1px solid ${C.border}`,borderRadius:9,fontSize:'0.8rem',color:C.navy,outline:'none',background:'#f8fafc',width:'100%',fontFamily:'inherit' }}/>
                                 </div>
                             </div>
                             <div className="filter-bar">
