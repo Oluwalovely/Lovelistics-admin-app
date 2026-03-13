@@ -42,6 +42,7 @@ const vehicleColor = type => {
 
 const DriverCard = ({ driver, onApprove }) => {
     const [approving, setApproving] = useState(false);
+    const [lightbox, setLightbox] = useState(false);
     const vc = vehicleColor(driver.vehicleType);
     const hasLocation = driver.currentLocation?.lat && driver.currentLocation?.lng;
 
@@ -72,7 +73,9 @@ const DriverCard = ({ driver, onApprove }) => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         {/* Avatar — photo if available, else initial */}
-                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: C.orange, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff', flexShrink: 0, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
+                        <div
+                            onClick={driver.avatar ? (e) => { e.stopPropagation(); setLightbox(true); } : undefined}
+                            style={{ width: 48, height: 48, borderRadius: '50%', background: C.orange, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff', flexShrink: 0, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)', cursor: driver.avatar ? 'zoom-in' : 'default' }}>
                             {driver.avatar
                                 ? <img src={driver.avatar} alt={driver.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                 : driver.fullName?.charAt(0).toUpperCase()
@@ -166,6 +169,17 @@ const DriverCard = ({ driver, onApprove }) => {
                     </div>
                 )}
             </div>
+
+            {/* Lightbox */}
+            {lightbox && driver.avatar && (
+                <div
+                    onClick={(e) => { e.stopPropagation(); setLightbox(false); }}
+                    style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 9999, cursor: 'zoom-out' }}
+                >
+                    <img src={driver.avatar} alt={driver.fullName} style={{ maxWidth: '90vw', maxHeight: '80vh', borderRadius: 16, objectFit: 'contain', boxShadow: '0 8px 40px rgba(0,0,0,0.5)' }} />
+                    <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: '1rem', fontSize: '0.9rem', fontWeight: 600 }}>{driver.fullName}</p>
+                </div>
+            )}
         </div>
     );
 };
