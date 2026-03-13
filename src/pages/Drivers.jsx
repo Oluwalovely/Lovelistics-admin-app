@@ -46,17 +46,17 @@ const DriverCard = ({ driver, onApprove }) => {
     const hasLocation = driver.currentLocation?.lat && driver.currentLocation?.lng;
 
     const handleApprove = async (e) => {
-    e.stopPropagation();
-    setApproving(true);
-    try {
-        await approveDriver(driver._id);
-        onApprove(driver._id);
-    } catch (error) {
-        alert('Failed to approve driver. Please try again.');
-    } finally {
-        setApproving(false);
-    }
-};
+        e.stopPropagation();
+        setApproving(true);
+        try {
+            await approveDriver(driver._id);
+            onApprove(driver._id);
+        } catch (error) {
+            alert('Failed to approve driver. Please try again.');
+        } finally {
+            setApproving(false);
+        }
+    };
 
     return (
         <div style={{ background: C.white, borderRadius: 16, border: `1px solid ${C.border}`, ...shadow, overflow: 'hidden', transition: 'transform 0.18s, box-shadow 0.18s' }}
@@ -71,8 +71,12 @@ const DriverCard = ({ driver, onApprove }) => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: C.orange, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff', flexShrink: 0 }}>
-                            {driver.fullName?.charAt(0).toUpperCase()}
+                        {/* Avatar — photo if available, else initial */}
+                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: C.orange, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '1.2rem', color: '#fff', flexShrink: 0, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
+                            {driver.avatar
+                                ? <img src={driver.avatar} alt={driver.fullName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                : driver.fullName?.charAt(0).toUpperCase()
+                            }
                         </div>
                         <div>
                             <p style={{ margin: 0, fontWeight: 800, color: '#fff', fontSize: '0.95rem' }}>{driver.fullName}</p>
@@ -108,10 +112,10 @@ const DriverCard = ({ driver, onApprove }) => {
                     <div style={{ background: '#f8fafc', borderRadius: 10, padding: '0.6rem 0.75rem' }}>
                         <p style={{ margin: 0, fontSize: '0.65rem', color: C.faint, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Availability</p>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: '0.82rem', color: driver.isAvailable ? C.green : C.amber, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                {driver.isAvailable
-                                    ? <><CheckCircle size={13} /> Available</>
-                                    : <><XCircle size={13} /> On Delivery</>}
-                            </p>
+                            {driver.isAvailable
+                                ? <><CheckCircle size={13} /> Available</>
+                                : <><XCircle size={13} /> On Delivery</>}
+                        </p>
                     </div>
                 </div>
 
@@ -180,7 +184,6 @@ const Drivers = () => {
             .finally(() => setLoading(false));
     }, []);
 
-    // Update driver in state without reloading the page
     const handleApprove = (driverId) => {
         setDrivers(prev => prev.map(d =>
             d._id === driverId ? { ...d, isApproved: true } : d
@@ -196,11 +199,11 @@ const Drivers = () => {
             d.vehiclePlate?.toLowerCase().includes(q);
 
         const matchFilter =
-            filter === 'all'        ? true :
-            filter === 'approved'   ? d.isApproved :
-            filter === 'pending'    ? !d.isApproved :
-            filter === 'available'  ? d.isAvailable :
-            filter === 'on-delivery'? !d.isAvailable : true;
+            filter === 'all'         ? true :
+            filter === 'approved'    ? d.isApproved :
+            filter === 'pending'     ? !d.isApproved :
+            filter === 'available'   ? d.isAvailable :
+            filter === 'on-delivery' ? !d.isAvailable : true;
 
         return matchSearch && matchFilter;
     });
@@ -221,7 +224,7 @@ const Drivers = () => {
                 @media(max-width: 1200px) { .drivers-grid { grid-template-columns: repeat(2, 1fr); } }
                 @media(max-width: 900px)  { .drivers-stats { grid-template-columns: repeat(2, 1fr); } }
                 @media(max-width: 768px)  { .drivers-grid { grid-template-columns: 1fr; } .drivers-stats { grid-template-columns: repeat(2, 1fr); } }
-                @media(max-width: 320px) { .drivers-stats { grid-template-columns: 1fr; } }
+                @media(max-width: 320px)  { .drivers-stats { grid-template-columns: 1fr; } }
             `}</style>
 
             <div style={{ maxWidth: 1500, margin: '0 auto', padding: '1.5rem 1rem 2.5rem' }}>
