@@ -161,7 +161,7 @@ const OrderDetails = () => {
                         {message && <div className="alert alert-success py-2 small">{message}</div>}
                         {error && <div className="alert alert-danger py-2 small">{error}</div>}
 
-                        {/* Header */}
+                        
                         <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 14 }}>
                             <div className="card-body d-flex justify-content-between align-items-center">
                                 <div>
@@ -172,7 +172,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Customer + Driver */}
+                        
                         <div className="row g-3 mb-3">
                             <div className="col-md-6">
                                 <div className="card border-0 shadow-sm h-100" style={{ borderRadius: 14 }}>
@@ -202,7 +202,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Route */}
+                        
                         <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 14 }}>
                             <div className="card-body">
                                 <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ color: '#0d1f4f' }}><MapPin size={16} /> Delivery Route</h6>
@@ -235,7 +235,7 @@ const OrderDetails = () => {
                             </div>
                         </div>
 
-                        {/* Images */}
+                        
                         {order.images?.length > 0 && (
                             <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 14 }}>
                                 <div className="card-body">
@@ -250,7 +250,7 @@ const OrderDetails = () => {
                             </div>
                         )}
 
-                        {/* Live Location */}
+                        
                         {['picked-up', 'in-transit'].includes(order.status) && (
                             <div className="card border-0 shadow-sm mb-3" style={{ borderRadius: 14, borderLeft: '4px solid #198754' }}>
                                 <div className="card-body">
